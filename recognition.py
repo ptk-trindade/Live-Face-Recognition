@@ -4,12 +4,7 @@ import cv2
 import numpy as np
 import math
 
-#ARDUINO
-# import pyfirmata 
-# import time
-# pin = 13
-# port = '/dev/ttyUSB0' 
-# board = pyfirmata.Arduino(port)
+import arduino
 
 
 # Helper
@@ -50,6 +45,9 @@ class FaceRecognition:
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
 
+        # Arduino
+        ard = arduino.Arduino()
+
         while True:
             ret, frame = video_capture.read()
 
@@ -79,6 +77,7 @@ class FaceRecognition:
 
                     best_match_index = np.argmin(face_distances)
                     if matches[best_match_index]:
+                        # THERE IS A MATCH!
                         name = self.known_face_names[best_match_index]
                         confidence = face_confidence(face_distances[best_match_index])
 
@@ -110,10 +109,10 @@ class FaceRecognition:
             if cv2.waitKey(1) == ord('q'):
                 break
 
-            # if turn_on:
-            #     board.digital[pin].write(1)
-            # else:
-            #     board.digital[pin].write(0)
+            if turn_on:
+                ard.activate()
+            else:
+                ard.deactivate()
 
         # Release handle to the webcam
         video_capture.release()
