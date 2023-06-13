@@ -66,6 +66,7 @@ class FaceRecognition:
                 self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
 
                 self.face_names = []
+                turn_on = False
                 for face_encoding in self.face_encodings:
                     # See if the face is a match for the known face(s)
                     matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
@@ -77,7 +78,7 @@ class FaceRecognition:
 
                     best_match_index = np.argmin(face_distances)
                     if matches[best_match_index]:
-                        # THERE IS A MATCH!
+                        turn_on = True
                         name = self.known_face_names[best_match_index]
                         confidence = face_confidence(face_distances[best_match_index])
 
@@ -85,12 +86,8 @@ class FaceRecognition:
 
             self.process_current_frame = not self.process_current_frame
 
-            turn_on = False
             # Display the results
             for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
-                if 'patrick' in name:
-                    turn_on = True
-
                 # Scale back up face locations since the frame we detected in was scaled to 1/4 size
                 top *= 4
                 right *= 4
@@ -110,9 +107,9 @@ class FaceRecognition:
                 break
 
             if turn_on:
-                ard.activate()
+                ard.run(True)
             else:
-                ard.deactivate()
+                ard.run(False)
 
         # Release handle to the webcam
         video_capture.release()
@@ -122,3 +119,4 @@ class FaceRecognition:
 if __name__ == '__main__':
     fr = FaceRecognition()
     fr.run_recognition()
+ 
